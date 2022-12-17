@@ -1,6 +1,6 @@
-import { signInSchema } from "../../Schemas/authSchemas/validateSignInBodySchema";
+import { signInSchema } from "../../Schemas/authSchemas/validateSignInBodySchema.js";
 import bcrypt from "bcrypt";
-//importar o DB quando possível
+import connectionDB from "../../Database/db.js";
 
 export default async function validateSignInBody(req, res, next) {
   const user = req.body;
@@ -22,7 +22,7 @@ export default async function validateSignInBody(req, res, next) {
     user.password
   );
 
-  if (userSpec.rows === 0 || !passwordValidation) {
+  if (userSpec.rows === 0 ||  !passwordValidation) {
     res.status(401).send("Email or password incorrect");
   }
   const sessionOngoing = await connectionDB.query(`

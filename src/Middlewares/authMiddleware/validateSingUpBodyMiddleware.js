@@ -1,5 +1,5 @@
-import { signUpSchema } from "../../Schemas/authSchemas/validateSignUpBody";
-//importar o DB quando tiver
+import { signUpSchema } from "../../Schemas/authSchemas/validateSignUpBody.js";
+import connectionDB from "../../Database/db.js";
 
 export default async function validateSignUpBody(req, res, next){
     const user = req.body

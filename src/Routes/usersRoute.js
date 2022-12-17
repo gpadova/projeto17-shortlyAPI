@@ -1,7 +1,8 @@
 import { Router } from "express";
+import tokenChecker from "../Controllers/tokenController.js";
 
-const router = Router()
+const userRouter = Router()
 
-router.get("")
+userRouter.get("/user/me", tokenChecker)
 
-export default router
+export default userRouter

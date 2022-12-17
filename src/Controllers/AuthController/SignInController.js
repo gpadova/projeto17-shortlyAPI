@@ -1,13 +1,13 @@
 import { v4 as uuid } from 'uuid';
-//importar o banco de dados quando criado
+import connectionDB from '../../Database/db.js';
 
-export default async function confirmSignIn(params) {
+export default async function confirmSignIn() {
     try {
         const token = uuid()
         await connectionDB.query(`
-            UPDATE sesseios
-            SET token = $1
-            WHERE userId = $2
+            INSERT INTO sessions
+            (token, userId)
+            VALUES ($1,$2);
         `, [token, user.id])
 
         res.send(token).status(200)
