@@ -15,8 +15,8 @@ export default async function validateSignUpBody(req, res, next){
     const users = await connectionDB.query(`
         SELECT * FROM users WHERE email = $1
     `, [user.email])
-    if(users.rows !== 0){
-        res.sendStatus(409)
+    if(users.rowCount !== 0){
+        return res.sendStatus(409)
     }
 
     res.locals.user = user

@@ -1,5 +1,4 @@
 import { urlSchema } from "../../Schemas/urlsSchemas/urlSchema.js";
-import connectionDB from "../../Database/db.js";
 
 export default async function validateUrlSchema(req, res, next) {
     const fullUrl = req.body;

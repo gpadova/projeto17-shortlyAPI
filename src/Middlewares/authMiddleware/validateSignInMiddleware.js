@@ -13,27 +13,35 @@ export default async function validateSignInBody(req, res, next) {
 
   const userSpec = await connectionDB.query(
     `
-        SELECT * FROM users WHERE email = $1
+        SELECT * 
+        FROM users 
+        WHERE email = $1;
     `,
     [user.email]
   );
+
+  if (userSpec.rowCount === 0) {
+    return res.status(401).send("Email or password incorrect");
+  }
+
   const passwordValidation = bcrypt.compareSync(
-    userSpec.password,
+    userSpec.rows[0].password,
     user.password
   );
 
-  if (userSpec.rows === 0 ||  !passwordValidation) {
-    res.status(401).send("Email or password incorrect");
+  if (passwordValidation) {
+    return res.status(401).send("Email or password incorrect");
   }
   const sessionOngoing = await connectionDB.query(`
         SELECT * 
         FROM sessions
-        WHERE userId = $1
-  `, [userSpec.id])
-  if(sessionOngoing.rows !== 0 ){
-    return res.send(sessionOngoing.token)
+        WHERE "userId" = $1;
+  `, [userSpec.rows[0].id])
+ 
+  if(sessionOngoing.rowCount !== 0 ){
+    return res.send(sessionOngoing.rows[0].token)
   }
 
-  res.locals.user = user;
+  res.locals.userSpec = userSpec;
   next();
 }

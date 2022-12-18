@@ -14,7 +14,7 @@ export default async function tokenChecker(req,res, next) {
         WHERE token = $1;
     `, [token])
 
-    if(session.rows === 0){
+    if(session.rowCount === 0){
         return res.sendStatus(401)
     }
     res.locals.session = session
