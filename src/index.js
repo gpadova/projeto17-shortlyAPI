@@ -3,6 +3,7 @@ import cors from "cors"
 import dotenv from "dotenv"
 import authRoutes from "./Routes/authRoutes.js"
 import urlsRouter from "./Routes/urlsRoutes.js"
+import userRouter from "./Routes/usersRoute.js"
 dotenv.config()
 
 
@@ -11,6 +12,7 @@ app.use(cors())
 app.use(express.json())
 app.use(authRoutes)
 app.use(urlsRouter)
+app.use(userRouter)
 
 
 
