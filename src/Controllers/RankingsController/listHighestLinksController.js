@@ -1,23 +1,24 @@
-import connectionDB from "../../Database/db.js"
+import connectionDB from "../../Database/db.js";
 
 export default async function listHighestLinks(req, res) {
-    
-    try {
-        const ranking = await connectionDB.query(`
-            SELECT us.id, us.name,COUNT(c.id), SUM(c.visitCount) 
-                FROM urls ur
-                    JOIN user us ON ur."userId" = us.id 
-                    JOIN counter c ON ur.id = c."urlId"
-            GROUP BY us.id
-            LIMIT 10
-            ORDER BY c."visitCount" DESC
-            ;
-        `)
+  try {
+    const ranking = await connectionDB.query(`
+    SELECT users.id, users.name,
+        COUNT(urls.id)::INTEGER as "linksCount",
+        COALESCE(SUM(c."visitCount"), 0)::INTEGER as "visitCount"
+        FROM users
+            LEFT JOIN urls
+                ON users.id=urls."userId"
+            LEFT JOIN counter c
+                ON c."urlId" = urls.id	
+            GROUP BY users.id
+                ORDER BY "visitCount" DESC
+                LIMIT 10;
+        `);
 
-        res.send(ranking).status(200)
-    } catch (error) {
-        console.log(error)
-        resizeBy.sendStatus(401)
-    }
+    res.send(ranking.rows).status(200);
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(401);
+  }
 }
-

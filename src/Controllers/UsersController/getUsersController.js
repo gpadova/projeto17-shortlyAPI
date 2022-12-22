@@ -2,29 +2,35 @@ import connectionDB from "../../Database/db.js";
 
 export default async function getUsersCount(req, res) {
   const session = res.locals.session;
+  let visitCount = 0;
   try {
-    const userTotalViews = await connectionDB.query(
+    const userInfo = await connectionDB.query(
       `
-      SELECT us.id, us.name, SUM("visitCount") AS visitCount, ur.id,
-      json_build_object(
-        'id', ur.id,
-        'shortUrl', ur."shortUrl",
-        'url', ur.url,
-        'visitCount', c."visitCount"
-      ) AS "shortnedUrls"
-      FROM urls ur
-          JOIN users us
-              ON us.id = ur."userId"
-          JOIN counter c
-              ON c."urlId" = ur.id
-            WHERE ur."userId" = $1	
-        GROUP BY ur.id, us.id, c."visitCount";  
-      ;
-        `,
+      SELECT id, name FROM users WHERE id = $1`,
       [session.rows[0].userId]
     );
+    const urlInfo = await connectionDB.query(
+      `
+      SELECT u.id, u."shortUrl", u.url, MAX(c."visitCount") AS "visitCount" 
+      FROM urls u
+      JOIN counter c
+        ON u.id = c."urlId"
+      WHERE u."userId" = $1
+      GROUP BY u.id`,
+      [session.rows[0].userId]
+    );
+    urlInfo.rows.map(inf => {
+      visitCount += inf.visitCount
+    })
 
-    res.send(userTotalViews.rows);
+    const objToBeSent = [{
+      id : userInfo.rows[0].id,
+      name : userInfo.rows[0].name,
+      visitCount,
+      shortnedUrls: urlInfo.rows
+    }]
+
+    res.send(objToBeSent);
   } catch (error) {
     console.log(error);
     res.sendStatus(500);
